@@ -17,7 +17,7 @@ def get_db():
 
 
 @router.post("/risk/score-order")
-def score_order(order_id: str, db: Session = Depends(get_db)):
+async def score_order(order_id: str, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
