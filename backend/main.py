@@ -2,26 +2,9 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from db import Base, engine
 from routes import orders, risk
 from fastapi.middleware.cors import CORSMiddleware
+from websocket_manager import manager
 
 app = FastAPI()
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def broadcast(self, data: dict):
-        for connection in self.active_connections:
-            await connection.send_json(data)
-
-
-manager = ConnectionManager()
 
 # create tables
 Base.metadata.create_all(bind=engine)

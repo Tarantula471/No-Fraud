@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMetrics } from "../context/MetricsContext";
 
 interface LiveOrder {
   order_id: string;
@@ -19,6 +20,7 @@ interface LiveOrder {
 
 export default function LiveOrders() {
   const [orders, setOrders] = useState<LiveOrder[]>([]);
+  const { updateMetrics } = useMetrics();
 
   useEffect(() => {
     const socket = new WebSocket("ws://127.0.0.1:8000/ws/orders");
@@ -27,6 +29,7 @@ export default function LiveOrders() {
       const data = JSON.parse(event.data);
 
       setOrders((prev) => [data, ...prev.slice(0, 7)]);
+      updateMetrics(data);
     };
 
     return () => {

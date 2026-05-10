@@ -5,6 +5,7 @@ from models import Order, Customer, RiskScore, PincodeStats
 from services.risk_engine import calculate_risk
 from services.action_engine import get_action_plan
 from services.profit_engine import get_profit_decision
+from websocket_manager import manager
 
 router = APIRouter()
 
@@ -48,7 +49,7 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
     db.add(risk_entry)
     db.commit()
 
-    return {
+    response = {
         "order_id": str(order.id),
 
         "risk": {
@@ -76,6 +77,9 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
             "notes": "Decision optimized for maximum expected profit"
         }
     }
+
+    await manager.broadcast(response)
+    return response
 
 
 @router.get("/risk/order/{order_id}")

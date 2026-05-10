@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { analyzeOrder, type RiskResponse } from "./api";
 import LiveOrders from "./components/LiveOrders";
+import RealtimeMetrics from "./components/RealtimeMetrics";
 
 function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -143,35 +144,7 @@ export default function App() {
         {data && (
           <>
             {/* KPI CARDS */}
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              <MetricCard
-                title="Risk Score"
-                value={String(data.risk.score)}
-                subtitle={data.risk.level}
-                glow="red"
-              />
-
-              <MetricCard
-                title="RTO Probability"
-                value={`${Math.round(data.risk.probability_of_rto * 100)}%`}
-                subtitle="Predicted return-to-origin"
-                glow="yellow"
-              />
-
-              <MetricCard
-                title="Expected Profit"
-                value={`₹${data.business_impact.expected_profit}`}
-                subtitle="Optimal decision outcome"
-                glow="green"
-              />
-
-              <MetricCard
-                title="Recommended"
-                value={data.decision.recommended_action}
-                subtitle={data.decision.confidence + " confidence"}
-                glow="blue"
-              />
-            </div>
+            <RealtimeMetrics />
 
             <div className="mt-8">
               <LiveOrders />
