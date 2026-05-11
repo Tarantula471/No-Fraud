@@ -3,6 +3,7 @@ import { analyzeOrder, type RiskResponse } from "./api";
 import LiveOrders from "./components/LiveOrders";
 import RealtimeMetrics from "./components/RealtimeMetrics";
 import OperatorQueue from "./components/OperatorQueue";
+import AnomalyAlerts from "./components/AnomalyAlerts";
 
 function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -153,6 +154,10 @@ export default function App() {
 
             <div className="mt-8">
               <OperatorQueue />
+            </div>
+
+            <div className="mt-8">
+              <AnomalyAlerts />
             </div>
 
             {/* GRID */}
