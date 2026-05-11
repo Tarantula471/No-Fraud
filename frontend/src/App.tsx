@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { analyzeOrder, type RiskResponse } from "./api";
 import LiveOrders from "./components/LiveOrders";
 import RealtimeMetrics from "./components/RealtimeMetrics";
+import OperatorQueue from "./components/OperatorQueue";
 
 function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -148,6 +149,10 @@ export default function App() {
 
             <div className="mt-8">
               <LiveOrders />
+            </div>
+
+            <div className="mt-8">
+              <OperatorQueue />
             </div>
 
             {/* GRID */}
