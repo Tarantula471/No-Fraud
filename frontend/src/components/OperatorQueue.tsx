@@ -3,9 +3,18 @@ import { useState } from "react";
 interface QueueItem {
   order_id: string;
 
+  customer_name: string;
+
+  vip: boolean;
+
+  potential_loss: number;
+
+  created_at: string;
+
   risk: {
     score: number;
     level: string;
+    probability_of_rto: number;
   };
 
   decision: {
@@ -21,9 +30,18 @@ const MOCK_QUEUE: QueueItem[] = [
   {
     order_id: "A1023",
 
+    customer_name: "Rahul Sharma",
+
+    vip: true,
+
+    potential_loss: 1200,
+
+    created_at: "2 min ago",
+
     risk: {
       score: 91,
       level: "HIGH",
+      probability_of_rto: 0.8,
     },
 
     decision: {
@@ -38,9 +56,18 @@ const MOCK_QUEUE: QueueItem[] = [
   {
     order_id: "A1024",
 
+    customer_name: "Paul",
+
+    vip: false,
+
+    potential_loss: 0,
+
+    created_at: "5 min ago",
+
     risk: {
       score: 88,
       level: "HIGH",
+      probability_of_rto: 0.7,
     },
 
     decision: {
@@ -55,9 +82,18 @@ const MOCK_QUEUE: QueueItem[] = [
   {
     order_id: "A1025",
 
+    customer_name: "Xavier",
+
+    vip: true,
+
+    potential_loss: 500,
+
+    created_at: "1 sec ago",
+
     risk: {
       score: 76,
       level: "MEDIUM",
+      probability_of_rto: 0.6,
     },
 
     decision: {
@@ -70,11 +106,32 @@ const MOCK_QUEUE: QueueItem[] = [
   },
 ];
 
+function calculatePriority(item: QueueItem) {
+  const vipBonus = item.vip ? 20 : 0;
+
+  return Math.round(
+    item.risk.score * 0.4 +
+      item.risk.probability_of_rto * 100 * 0.3 +
+      item.potential_loss * 0.02 +
+      vipBonus,
+  );
+}
+
 export default function OperatorQueue() {
-  const [queue, setQueue] = useState<QueueItem[]>(MOCK_QUEUE);
+  const [queue, setQueue] = useState<QueueItem[]>(
+    MOCK_QUEUE.sort((a, b) => calculatePriority(b) - calculatePriority(a)),
+  );
 
   function resolveOrder(orderId: string) {
     setQueue((prev) => prev.filter((item) => item.order_id !== orderId));
+  }
+
+  function getPriorityColor(score: number) {
+    if (score >= 85) return "text-red-400 bg-red-500/10";
+
+    if (score >= 65) return "text-yellow-400 bg-yellow-500/10";
+
+    return "text-green-400 bg-green-500/10";
   }
 
   return (
@@ -92,6 +149,20 @@ export default function OperatorQueue() {
         <div className="rounded-full bg-red-500/10 px-3 py-1 text-sm font-medium text-red-400">
           {queue.length} Pending
         </div>
+      </div>
+
+      <div className="mb-5 flex gap-3">
+        <button className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-black">
+          All
+        </button>
+
+        <button className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-400">
+          High Priority
+        </button>
+
+        <button className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-400">
+          VIP
+        </button>
       </div>
 
       {/* Queue */}
@@ -121,6 +192,21 @@ export default function OperatorQueue() {
                     Risk Score: {item.risk.score}
                   </span>
                 </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${getPriorityColor(
+                      calculatePriority(item),
+                    )}`}
+                  >
+                    Priority: {calculatePriority(item)}
+                  </div>
+
+                  {item.vip && (
+                    <div className="rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-medium text-yellow-400">
+                      VIP
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="text-right">
@@ -128,6 +214,10 @@ export default function OperatorQueue() {
 
                 <div className="mt-1 text-xl font-bold text-green-400">
                   ₹{item.business_impact.expected_profit}
+                </div>
+
+                <div className="mt-2 text-sm text-zinc-500">
+                  SLA: 04:12 remaining
                 </div>
               </div>
             </div>
