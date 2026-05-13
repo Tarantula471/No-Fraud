@@ -5,6 +5,7 @@ import RealtimeMetrics from "./components/RealtimeMetrics";
 import OperatorQueue from "./components/OperatorQueue";
 import AnomalyAlerts from "./components/AnomalyAlerts";
 import AIReasoningPanel from "./components/AIReasoningPanel";
+import ReasoningTimeline from "./components/ReasoningTimeline";
 
 function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -354,6 +355,10 @@ export default function App() {
 
                 <div className="mt-8">
                   <AIReasoningPanel reasoning={data.ai_reasoning} />
+                </div>
+
+                <div className="mt-8">
+                  <ReasoningTimeline />
                 </div>
 
                 {/* System */}
