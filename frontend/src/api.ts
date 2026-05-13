@@ -28,6 +28,14 @@ export interface RiskResponse {
     risk_cost: number;
     notes: string;
   };
+
+  ai_reasoning: {
+    summary: string;
+
+    factors: string[];
+
+    confidence_explanation: string;
+  };
 }
 
 export async function fetchRisk(orderId: string): Promise<RiskResponse> {

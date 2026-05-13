@@ -4,6 +4,7 @@ import LiveOrders from "./components/LiveOrders";
 import RealtimeMetrics from "./components/RealtimeMetrics";
 import OperatorQueue from "./components/OperatorQueue";
 import AnomalyAlerts from "./components/AnomalyAlerts";
+import AIReasoningPanel from "./components/AIReasoningPanel";
 
 function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -350,6 +351,10 @@ export default function App() {
                     />
                   </div>
                 </Card>
+
+                <div className="mt-8">
+                  <AIReasoningPanel reasoning={data.ai_reasoning} />
+                </div>
 
                 {/* System */}
                 <Card>

@@ -6,6 +6,7 @@ from services.risk_engine import calculate_risk
 from services.action_engine import get_action_plan
 from services.profit_engine import get_profit_decision
 from websocket_manager import manager
+from services.reasoning_engine import generate_reasoning
 
 router = APIRouter()
 
@@ -37,6 +38,7 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
         key=lambda x: x["profit"],
         reverse=True
     )
+    reasoning = generate_reasoning(order, risk_score)
 
     risk_entry = RiskScore(
         order_id=order.id,
@@ -75,7 +77,9 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
             "expected_profit": profit_data["expected_profit"],
             "risk_cost": round(profit_data["prob_rto"] * 150, 2),
             "notes": "Decision optimized for maximum expected profit"
-        }
+        },
+
+        "ai_reasoning": reasoning
     }
 
     await manager.broadcast(response)
