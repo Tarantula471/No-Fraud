@@ -1,5 +1,19 @@
 import { useState } from "react";
 
+interface Operator {
+  id: number;
+
+  name: string;
+
+  specialization: "FRAUD" | "VIP" | "LOGISTICS";
+
+  activeCases: number;
+
+  maxCapacity: number;
+
+  online: boolean;
+}
+
 interface QueueItem {
   order_id: string;
 
@@ -10,6 +24,8 @@ interface QueueItem {
   potential_loss: number;
 
   created_at: string;
+
+  assignedOperator?: Operator;
 
   risk: {
     score: number;
@@ -25,6 +41,35 @@ interface QueueItem {
     expected_profit: number;
   };
 }
+
+const OPERATORS: Operator[] = [
+  {
+    id: 1,
+    name: "Rahul",
+    specialization: "FRAUD",
+    activeCases: 3,
+    maxCapacity: 10,
+    online: true,
+  },
+
+  {
+    id: 2,
+    name: "Priya",
+    specialization: "VIP",
+    activeCases: 2,
+    maxCapacity: 8,
+    online: true,
+  },
+
+  {
+    id: 3,
+    name: "Arjun",
+    specialization: "LOGISTICS",
+    activeCases: 5,
+    maxCapacity: 12,
+    online: true,
+  },
+];
 
 const MOCK_QUEUE: QueueItem[] = [
   {
@@ -117,9 +162,33 @@ function calculatePriority(item: QueueItem) {
   );
 }
 
+function autoAssignOperator(item: QueueItem): Operator | undefined {
+  const availableOperators = OPERATORS.filter(
+    (op) => op.online && op.activeCases < op.maxCapacity,
+  );
+
+  // VIP routing
+  if (item.vip) {
+    return availableOperators.find((op) => op.specialization === "VIP");
+  }
+
+  // High-risk fraud routing
+  if (item.risk.score >= 85) {
+    return availableOperators.find((op) => op.specialization === "FRAUD");
+  }
+
+  // Logistics / COD routing
+  return availableOperators.find((op) => op.specialization === "LOGISTICS");
+}
+
 export default function OperatorQueue() {
+  const initialQueue = MOCK_QUEUE.map((item) => ({
+    ...item,
+    assignedOperator: autoAssignOperator(item),
+  }));
+
   const [queue, setQueue] = useState<QueueItem[]>(
-    MOCK_QUEUE.sort((a, b) => calculatePriority(b) - calculatePriority(a)),
+    initialQueue.sort((a, b) => calculatePriority(b) - calculatePriority(a)),
   );
 
   function resolveOrder(orderId: string) {
@@ -175,6 +244,14 @@ export default function OperatorQueue() {
             {/* Top */}
             <div className="flex items-start justify-between">
               <div>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
+
+                  <span className="text-sm text-zinc-500">
+                    Auto-routing enabled
+                  </span>
+                </div>
+
                 <div className="text-lg font-semibold">{item.order_id}</div>
 
                 <div className="mt-2 flex items-center gap-3">
@@ -230,6 +307,39 @@ export default function OperatorQueue() {
 
               <div className="mt-2 text-lg font-semibold text-white">
                 {item.decision.recommended_action}
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-zinc-500">
+                  Assigned Operator
+                </div>
+
+                <div className="mt-2 font-semibold">
+                  {item.assignedOperator?.name}
+                </div>
+              </div>
+
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-blue-400"
+                  style={{
+                    width: `${
+                      (item.assignedOperator!.activeCases /
+                        item.assignedOperator!.maxCapacity) *
+                      100
+                    }%`,
+                  }}
+                />
+              </div>
+
+              <div className="text-right">
+                <div className="text-xs text-zinc-500">Expertise</div>
+
+                <div className="mt-2 text-sm text-blue-400">
+                  {item.assignedOperator?.specialization}
+                </div>
               </div>
             </div>
 
