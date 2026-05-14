@@ -7,6 +7,12 @@ from services.action_engine import get_action_plan
 from services.profit_engine import get_profit_decision
 from websocket_manager import manager
 from services.reasoning_engine import generate_reasoning
+from agents.risk_agent import (
+    RiskInvestigationAgent
+)
+from agents.profit_agent import (
+    ProfitOptimizationAgent
+)
 
 router = APIRouter()
 
@@ -30,14 +36,16 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
         PincodeStats.pincode == order.shipping_pincode
     ).first()
 
-    # AI AGENT
-    from agents.risk_agent import (
-        RiskInvestigationAgent
-    )
-
     agent = RiskInvestigationAgent()
 
     agent_result = agent.investigate(order)
+
+    profit_agent = ProfitOptimizationAgent()
+
+    profit_result = profit_agent.optimize(
+        order,
+        risk_score
+    )
 
     result = calculate_risk(order, customer, pincode_stat)
     # Combine agent intelligence
@@ -97,7 +105,8 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
         },
 
         "ai_reasoning": reasoning,
-        "agent_analysis": agent_result
+        "agent_analysis": agent_result,
+        "profit_agent": profit_result
     }
 
     await manager.broadcast(response)

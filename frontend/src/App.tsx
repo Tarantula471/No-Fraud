@@ -6,6 +6,7 @@ import OperatorQueue from "./components/OperatorQueue";
 import AnomalyAlerts from "./components/AnomalyAlerts";
 import AIReasoningPanel from "./components/AIReasoningPanel";
 import ReasoningTimeline from "./components/ReasoningTimeline";
+import ProfitSimulation from "./components/ProfitSimulation";
 
 function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -323,6 +324,8 @@ export default function App() {
                     </p>
                   </div>
                 </Card>
+
+                <ProfitSimulation actions={data.profit_agent.all_actions} />
 
                 {/* Financial Impact */}
                 <Card>
