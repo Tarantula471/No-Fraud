@@ -30,7 +30,24 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
         PincodeStats.pincode == order.shipping_pincode
     ).first()
 
+    # AI AGENT
+    from agents.risk_agent import (
+        RiskInvestigationAgent
+    )
+
+    agent = RiskInvestigationAgent()
+
+    agent_result = agent.investigate(order)
+
     result = calculate_risk(order, customer, pincode_stat)
+    # Combine agent intelligence
+    result["reasons"].extend(
+        agent_result["signals"]
+    )
+
+    result["score"] += (
+        agent_result["extra_risk"]
+    )
     action_plan = get_action_plan(order, customer, result["score"])
     profit_data = get_profit_decision(order, result["score"])
     sorted_actions = sorted(
@@ -79,7 +96,8 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
             "notes": "Decision optimized for maximum expected profit"
         },
 
-        "ai_reasoning": reasoning
+        "ai_reasoning": reasoning,
+        "agent_analysis": agent_result
     }
 
     await manager.broadcast(response)
