@@ -13,6 +13,9 @@ from agents.risk_agent import (
 from agents.profit_agent import (
     ProfitOptimizationAgent
 )
+from services.similarity_engine import (
+    SimilarityEngine
+)
 
 router = APIRouter()
 
@@ -76,6 +79,14 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
     db.add(risk_entry)
     db.commit()
 
+    similarity_engine = SimilarityEngine()
+
+    similar_cases =
+        similarity_engine.find_similar_cases(
+            order,
+            historical_orders
+        )
+
     response = {
         "order_id": str(order.id),
 
@@ -106,7 +117,8 @@ async def score_order(order_id: str, db: Session = Depends(get_db)):
 
         "ai_reasoning": reasoning,
         "agent_analysis": agent_result,
-        "profit_agent": profit_result
+        "profit_agent": profit_result,
+        "similar_cases": similar_cases
     }
 
     await manager.broadcast(response)

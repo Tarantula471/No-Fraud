@@ -7,6 +7,7 @@ import AnomalyAlerts from "./components/AnomalyAlerts";
 import AIReasoningPanel from "./components/AIReasoningPanel";
 import ReasoningTimeline from "./components/ReasoningTimeline";
 import ProfitSimulation from "./components/ProfitSimulation";
+import SimilarCases from "./components/SimilarCases";
 
 function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -362,6 +363,10 @@ export default function App() {
 
                 <div className="mt-8">
                   <ReasoningTimeline />
+                </div>
+
+                <div className="mt-8">
+                  <SimilarCases cases={data.similar_cases} />
                 </div>
 
                 {/* System */}
